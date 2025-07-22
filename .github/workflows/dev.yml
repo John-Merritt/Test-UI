@@ -1,0 +1,48 @@
+name: Build and Deploy .NET Core to K3s
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  build-deploy:
+    runs-on: self-hosted
+
+    env:
+      IMAGE_NAME: kuhzoo-api
+      IMAGE_TAG: latest
+      REGISTRY: localhost
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build project
+      run: dotnet publish ./Test/Test.csproj -c Release -o out
+      
+    - name: Build Docker image
+      run: docker build -f ./Test/Dockerfile -t  $REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
+
+    - name: Load image into K3s
+      run: |
+        sudo ctr -a /run/k3s/containerd/containerd.sock -n k8s.io images rm $REGISTRY/$IMAGE_NAME:$IMAGE_TAG || true || true
+        docker save $REGISTRY/$IMAGE_NAME:$IMAGE_TAG -o image.tar 
+        sudo ctr -a /run/k3s/containerd/containerd.sock -n k8s.io images import image.tar
+        #sudo ctr -a /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/$IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:$IMAGE_TAG || true
+        #sudo ctr -a /run/k3s/containerd/containerd.sock -n k8s.io images rm docker.io/library/$IMAGE_NAME:$IMAGE_TAG || true
+
+    - name: Deploy to K3s
+      run: |
+        export KUBECONFIG=/home/github-runner/.kube/config
+        kubectl apply -f Test/k8s/dev/deployment.yaml
+        kubectl apply -f Test/k8s/dev/service.yaml
+        kubectl apply -f Test/k8s/dev/ingress.yaml
+        kubectl rollout restart deployment kuhzoo-api -n default
