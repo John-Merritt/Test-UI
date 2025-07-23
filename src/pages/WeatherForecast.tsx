@@ -1,14 +1,17 @@
-import { useQuery } from '@tanstack/react-query'
-import { getWeatherForecast } from '../api/weather'
+import { useWeather } from '../api/weather'
 import Page from '../components/Page'
 import Heading from '../components/Heading'
 import Card from '../components/Card'
 
+type WeatherForecast = {
+  date: string;
+  temperatureC: number;
+  temperatureF: number;
+  summary: string;
+};
+
 export default function WeatherForecast() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['weather'],
-    queryFn: getWeatherForecast,
-  })
+  const { data, isLoading, error } = useWeather(); 
 
   return (
     <Page>
