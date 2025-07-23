@@ -19,4 +19,4 @@ spec:
         image: localhost/kuhzoo-ui:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 8080
+        - containerPort: 80
