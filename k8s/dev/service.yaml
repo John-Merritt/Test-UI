@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuhzoo-ui
+  labels:
+    app: kuhzoo-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuhzoo-ui
+  template:
+    metadata:
+      labels:
+        app: kuhzoo-ui
+    spec:
+      containers:
+      - name: kuhzoo-ui
+        image: localhost/kuhzoo-ui:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080

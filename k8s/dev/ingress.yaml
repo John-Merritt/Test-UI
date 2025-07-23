@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kuhzoo-ui-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+      - kuhzoo.com
+      - dev.kuhzoo.com
+    secretName: kuhzoo-tls
+  rules:
+  - host: kuhzoo.com
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: kuhzoo-ui
+              port:
+                number: 80
+  - host: dev.kuhzoo.com
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: kuhzoo-ui
+              port:
+                number: 80
