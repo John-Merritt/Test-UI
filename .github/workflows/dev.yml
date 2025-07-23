@@ -21,7 +21,7 @@ jobs:
       - name: Save Docker image to tar
         run:
           sudo ctr -a /run/k3s/containerd/containerd.sock -n k8s.io images rm $REGISTRY/$IMAGE_NAME:$IMAGE_TAG || true 
-          docker save $REGISTRY/$IMAGE_NAME:$IMAGE_TAG-o image.tar
+          docker save $REGISTRY/$IMAGE_NAME:$IMAGE_TAG -o image.tar
 
       - name: Load Docker image into k3s
         run: |
